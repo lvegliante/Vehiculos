@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Threading.Tasks;
 using Vehiculos.API.Data;
 using Vehiculos.API.Data.Entities;
 
@@ -25,47 +22,43 @@ namespace Vehiculos.API.Controllers
             return View(await _context.VehiculoTypes.ToListAsync());
         }
 
-        // GET: VehiculoTypes/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var vehiculoType = await _context.VehiculoTypes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (vehiculoType == null)
-            {
-                return NotFound();
-            }
-
-            return View(vehiculoType);
-        }
-
         // GET: VehiculoTypes/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: VehiculoTypes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Description")] VehiculoType vehiculoType)
+        public async Task<IActionResult> Create(VehiculoType vehiculoType)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(vehiculoType);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(vehiculoType);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
+                    {
+                        ModelState.AddModelError(string.Empty, "Ya Existe este tipo de Vehiculos.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
             }
             return View(vehiculoType);
         }
 
-        // GET: VehiculoTypes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,20 +66,18 @@ namespace Vehiculos.API.Controllers
                 return NotFound();
             }
 
-            var vehiculoType = await _context.VehiculoTypes.FindAsync(id);
+            VehiculoType vehiculoType = await _context.VehiculoTypes.FindAsync(id);
             if (vehiculoType == null)
             {
                 return NotFound();
             }
+
             return View(vehiculoType);
         }
 
-        // POST: VehiculoTypes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Description")] VehiculoType vehiculoType)
+        public async Task<IActionResult> Edit(int id, VehiculoType vehiculoType)
         {
             if (id != vehiculoType.Id)
             {
@@ -99,24 +90,28 @@ namespace Vehiculos.API.Controllers
                 {
                     _context.Update(vehiculoType);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateException dbUpdateException)
                 {
-                    if (!VehiculoTypeExists(vehiculoType.Id))
+                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        return NotFound();
+                        ModelState.AddModelError(string.Empty, "Ya Existe este tipo de Vehiculos.");
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
+
             }
             return View(vehiculoType);
         }
 
-        // GET: VehiculoTypes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,30 +119,15 @@ namespace Vehiculos.API.Controllers
                 return NotFound();
             }
 
-            var vehiculoType = await _context.VehiculoTypes
+            VehiculoType vehiculoType = await _context.VehiculoTypes
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (vehiculoType == null)
             {
                 return NotFound();
             }
-
-            return View(vehiculoType);
-        }
-
-        // POST: VehiculoTypes/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var vehiculoType = await _context.VehiculoTypes.FindAsync(id);
             _context.VehiculoTypes.Remove(vehiculoType);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool VehiculoTypeExists(int id)
-        {
-            return _context.VehiculoTypes.Any(e => e.Id == id);
         }
     }
 }
