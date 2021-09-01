@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Vehiculos.API.Data.Entities;
 
 namespace Vehiculos.API.Data
@@ -14,13 +12,24 @@ namespace Vehiculos.API.Data
 
         }
 
-        public DbSet<VehiculoType> VehiculoTypes { get; set;}
+        public DbSet<VehiculoType> VehiculoTypes { get; set; }
+
+        public DbSet<Procedure> Procedures { get; set; }
+
+        public DbSet<DocumentType> DocumentTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Procedure>().HasIndex(x => x.Description).IsUnique();
             modelBuilder.Entity<VehiculoType>().HasIndex(x => x.Description).IsUnique();
+            modelBuilder.Entity<DocumentType>().HasIndex(x => x.Description).IsUnique();
 
+        }
+
+        public static implicit operator ControllerContext(DataContext v)
+        {
+            throw new NotImplementedException();
         }
     }
 }
