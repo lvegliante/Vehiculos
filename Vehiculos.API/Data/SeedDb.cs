@@ -1,28 +1,65 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Vehiculos.API.Data.Entities;
+using Vehiculos.API.Helpers;
+using Vehiculos.Common.Enums;
 
 namespace Vehiculos.API.Data
 {
     public class SeedDb
     {
         private readonly DataContext _context;
+        private readonly IUserHelper _userHelper;
 
-        public SeedDb(DataContext contex)
+        public SeedDb(DataContext contex, IUserHelper userHelper)
         {
             _context = contex;
+            _userHelper = userHelper;
         }
 
         public async Task SeedAsync()
         {
             await _context.Database.EnsureCreatedAsync();
-            await checkVehiclesTypeAsync();
-            await checkDocumentsTypeAsync();
-            await checkProceduresAsync();
-            await checkBrandsAsync();
+            await CheckVehiclesTypeAsync();
+            await CheckBrandsAsync();
+            await CheckDocumentsTypeAsync();
+            await CheckProceduresAsync();
+            await CheckRolesAsyncn();
+            await CheckUsersAsyncn("1010", "Luis", "Vegliante", "lucho@yopmail.com","314 804 4137","Carrera 58A #45-15", UserType.Admin);
+            await CheckUsersAsyncn("2020", "Mariana", "Posada", "Mariana@yopmail.com", "314 804 4137", "Carrera 58A #45-15", UserType.User);
+            await CheckUsersAsyncn("3030", "Juan", "Torres","Juan@yopmail.com", "314 804 4137", "Carrera 58A #45-15", UserType.User);
         }
 
-        private async Task checkBrandsAsync()
+        private async Task CheckUsersAsyncn(string document, string firstName , string lastName, string email, string phoneNumber, string address, UserType userType)
+        {
+            User user = await _userHelper.GetUserAsync(email);
+            if (user == null)
+            {
+                user = new User
+                {
+                    Address = address,
+                    Document = document,
+                    DocumentType = _context.DocumentTypes.FirstOrDefault(x => x.Description == "Cédula"),
+                    Email = email,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    PhoneNumber = phoneNumber,
+                    UserName = email,
+                    UserType = userType
+                };
+                await _userHelper.AddUserAsync(user, "123456");
+                await _userHelper.AddUserToRoleAsync(user, userType.ToString());
+            }
+        }
+
+        private async Task CheckRolesAsyncn()
+        {
+            await _userHelper.CheckRoleAsync(UserType.Admin.ToString());
+            await _userHelper.CheckRoleAsync(UserType.User.ToString());
+        }
+
+        private async Task CheckBrandsAsync()
         {
             if (!_context.Brands.Any())
             {
@@ -49,7 +86,7 @@ namespace Vehiculos.API.Data
             }
         }
 
-        private async Task checkProceduresAsync()
+        private async Task CheckProceduresAsync()
         {
             if (!_context.Procedures.Any())
             {
@@ -86,16 +123,19 @@ namespace Vehiculos.API.Data
             }
         }
 
-        private async Task checkDocumentsTypeAsync()
+        private async Task CheckDocumentsTypeAsync()
         {
-            _context.DocumentTypes.Add(new DocumentType { Description = "Cedula" });
-            _context.DocumentTypes.Add(new DocumentType { Description = "Tarjeta de Identidad" });
-            _context.DocumentTypes.Add(new DocumentType { Description = "Nit" });
-            _context.DocumentTypes.Add(new DocumentType { Description = "Pasaporte" });
-            await _context.SaveChangesAsync();
+            if (!_context.DocumentTypes.Any())
+            {
+                _context.DocumentTypes.Add(new DocumentType { Description = "Cédula" });
+                _context.DocumentTypes.Add(new DocumentType { Description = "Tarjeta de Identidad" });
+                _context.DocumentTypes.Add(new DocumentType { Description = "Nit" });
+                _context.DocumentTypes.Add(new DocumentType { Description = "Pasaporte" });
+                await _context.SaveChangesAsync();
+            }
         }
 
-        private async Task checkVehiclesTypeAsync()
+        private async Task CheckVehiclesTypeAsync()
         {
             if (!_context.VehiculoTypes.Any())
             {
