@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using Vehiculos.Common.Enums;
 
 namespace Vehiculos.API.Data.Entities
@@ -36,11 +34,11 @@ namespace Vehiculos.API.Data.Entities
         [Display(Name = "Foto")]
         public Guid ImageId { get; set; }
 
-        //TODO: Fix the image path
         [Display(Name = "Foto")]
         public string ImageFullPath => ImageId == Guid.Empty
             ? $"https://localhost:5001/images/noimage.png"
-            : $"https://vehicleszulu.blob.core.windows.net/users/{ImageId}";
+            : $"https://vehiculoslucho.blob.core.windows.net/users/{ImageId}";
+                
 
         [Display(Name = "Tipo de usuario")]
         public UserType UserType { get; set; }
@@ -49,8 +47,10 @@ namespace Vehiculos.API.Data.Entities
         public string FullName => $"{FirstName} {LastName}";
 
         public ICollection<Vehicle> Vehicles { get; set; }
-      //  public ICollection<History> Histories { get; set; }
+        //  public ICollection<History> Histories { get; set; }
 
+        [Display(Name = "# Vehículos")]
+        public int VehiclesCount => Vehicles == null ? 0 : Vehicles.Count;
 
     }
 }
