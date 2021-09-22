@@ -12,6 +12,7 @@ namespace Vehiculos.API.Data.Entities
         public int Id { get; set; }
 
         [Display(Name = "Vehículo")]
+        [JsonIgnore]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public Vehicle Vehicle { get; set; }
 
@@ -31,10 +32,10 @@ namespace Vehiculos.API.Data.Entities
         [DataType(DataType.MultilineText)]
         public string Remarks { get; set; }
 
-        [Display(Name = "Mecanico")]
+        [JsonIgnore]
+        [Display(Name = "Mecánico")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public User User { get; set; }
-
 
         public ICollection<Detail> Details { get; set; }
 
@@ -52,6 +53,6 @@ namespace Vehiculos.API.Data.Entities
         [Display(Name = "Total")]
         [DisplayFormat(DataFormatString = "{0:C2}")]
         public decimal Total => Details == null ? 0 : Details.Sum(x => x.TotalPrice);
-       
+
     }
 }

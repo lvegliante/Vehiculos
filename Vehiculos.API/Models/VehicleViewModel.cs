@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vehiculos.API.Data.Entities;
 
 namespace Vehiculos.API.Models
 {
@@ -53,6 +54,8 @@ namespace Vehiculos.API.Models
 
         [Display(Name = "Foto")]
         public IFormFile ImageFile { get; set; }
+
+        public ICollection<VehiclePhoto> VehiclePhotos { get; set; }
 
     }
 }

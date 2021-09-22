@@ -9,6 +9,7 @@ namespace Vehiculos.API.Data.Entities
 {
     public class Vehicle
     {
+
         public int Id { get; set; }
 
         [Display(Name = "Tipo de vehículo")]
@@ -49,7 +50,7 @@ namespace Vehiculos.API.Data.Entities
         [DataType(DataType.MultilineText)]
         public string Remarks { get; set; }
 
-       public ICollection<VehiclePhoto> VehiclePhotos { get; set; }
+        public ICollection<VehiclePhoto> VehiclePhotos { get; set; }
 
         [Display(Name = "# Fotos")]
         public int VehiclePhotosCount => VehiclePhotos == null ? 0 : VehiclePhotos.Count;
@@ -59,6 +60,7 @@ namespace Vehiculos.API.Data.Entities
             ? $"https://localhost:44345/images/noimage.png"
             : VehiclePhotos.FirstOrDefault().ImageFullPath;
 
+        // [JsonIgnore]
         public ICollection<History> Histories { get; set; }
 
         [Display(Name = "# Historias")]
