@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Vehiculos.API.Data;
 using Vehiculos.API.Data.Entities;
 using Vehiculos.API.Models;
+using Vehiculos.Common.Enums;
 
 namespace Vehiculos.API.Helpers
 {
@@ -28,9 +29,41 @@ namespace Vehiculos.API.Helpers
             return await _userManager.CreateAsync(user, password);
         }
 
+        public async Task<User> AddUserAsync(AddUserViewModel model, Guid imageId, UserType userType)
+        {
+            User user = new User
+            {
+                Address = model.Address,
+                Document = model.Document,
+                Email = model.Username,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                ImageId = imageId,
+                PhoneNumber = model.PhoneNumber,
+                DocumentType = await _context.DocumentTypes.FindAsync(model.DocumentTypeId),
+                UserName = model.Username,
+                UserType = userType
+            };
+
+            IdentityResult result = await _userManager.CreateAsync(user, model.Password);
+            if (result != IdentityResult.Success)
+            {
+                return null;
+            }
+
+            User newUser = await GetUserAsync(model.Username);
+            await AddUserToRoleAsync(newUser, user.UserType.ToString());
+            return newUser;
+        }
+
         public async Task AddUserToRoleAsync(User user, string roleName)
         {
             await _userManager.AddToRoleAsync(user, roleName);
+        }
+
+        public async Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword)
+        {
+            return await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
         }
 
         public async Task CheckRoleAsync(string roleName)
@@ -42,10 +75,21 @@ namespace Vehiculos.API.Helpers
             }
         }
 
+        public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
+        {
+            return await _userManager.ConfirmEmailAsync(user, token);
+        }
+
         public async Task<IdentityResult> DeleteUserAsync(User user)
         {
             return await _userManager.DeleteAsync(user);
         }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
+        {
+            return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        }
+
 
         public async Task<User> GetUserAsync(string email)
         {

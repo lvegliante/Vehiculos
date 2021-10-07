@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vehiculos.API.Data.Entities;
 using Vehiculos.API.Models;
+using Vehiculos.Common.Enums;
 
 namespace Vehiculos.API.Helpers
 {
@@ -20,6 +21,10 @@ namespace Vehiculos.API.Helpers
         Task<bool> IsUserInRoleAsync(User user, string roleName);
         Task<SignInResult> LoginAsync(LoginViewModel model);
         Task LogoutAsync();
+        Task<User> AddUserAsync(AddUserViewModel model, Guid imageId, UserType userType);
+        Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword);
+        Task<string> GenerateEmailConfirmationTokenAsync(User user);
+        Task<IdentityResult> ConfirmEmailAsync(User user, string token);
 
     }
 }
