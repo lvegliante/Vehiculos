@@ -10,8 +10,8 @@ using Vehiculos.API.Data;
 namespace Vehiculos.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20210916032356_addUserHistory")]
-    partial class addUserHistory
+    [Migration("20211019235634_AllTables")]
+    partial class AllTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -286,8 +286,8 @@ namespace Vehiculos.API.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Address")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
