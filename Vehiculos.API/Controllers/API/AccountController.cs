@@ -58,7 +58,6 @@ namespace Vehiculos.API.Controllers.API
                             expiration = token.ValidTo,
                             user
                         };
-
                         return Created(string.Empty, results);
                     }
                 }
